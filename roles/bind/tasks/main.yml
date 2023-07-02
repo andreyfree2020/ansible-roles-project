@@ -1,0 +1,92 @@
+---
+- name: Установка Bind9 на ГЛАВНОМ Сервере с Ubuntu
+  block:
+    - name: Установка пакетa Bind9 на Ubuntu
+      apt:
+        name:
+          - bind9
+        update_cache: true
+    
+    - name: Создание Директорий etc-bind-myzones-andrey-project для Bind9 Ubuntu
+      file:
+        path: "/etc/bind/myzones/andrey-project"
+        state: directory
+        owner: root
+        group: bind
+        mode: u=rwx,g=rx,o=rx
+    
+    - name: Set "setuid" bit myzones which tells the OS to execute that program with the userid of its owner Bind9 Ubuntu
+      file:
+        path: "/etc/bind/myzones"
+        recurse: yes
+        mode: g+s
+    
+    - name: Применение нового конфигурационного файла named-conf-options для Bind9 Ubuntu
+      template:
+        src: "named.conf.options.j2"
+        dest: "/etc/bind/named.conf.options"
+        owner: root
+        group: bind
+        mode: u=rw,g=r,o=r
+    
+    - name: Применение нового конфигурационного файла named для Bind9 Ubuntu
+      template:
+        src: "named.conf.j2"
+        dest: "/etc/bind/named.conf"
+        owner: root
+        group: bind
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла named-conf-local для Bind9 Ubuntu
+      template:
+        src: "named.conf.local.j2"
+        dest: "/etc/bind/named.conf.local"
+        owner: root
+        group: bind
+        mode: u=rw,g=r,o=r
+    
+    - name: Применение Описание ПРЯМОЙ зоны andrey-project-db для Bind9 Ubuntu
+      template:
+        src: "andrey-project.db.j2"
+        dest: "/etc/bind/myzones/andrey-project/andrey-project.db"
+        owner: root
+        group: bind
+        mode: u=rw,g=r,o=r
+    
+    - name: Применение Описание ОБРАТНОЙ зоны reverse-db для Bind9 Ubuntu
+      template:
+        src: "reverse.db.j2"
+        dest: "/etc/bind/myzones/andrey-project/reverse.db"
+        owner: root
+        group: bind
+        mode: u=rw,g=r,o=r
+    
+    # Часть1 - Для Клиентов Ubuntu РОЛЬ - отключить настройку сети через cloud-init
+    #- name: Отключаем на Клиенте настройку сети через cloud-init в etc-cloud-cloud-cfg-d
+    #  copy:
+    #    src: "99-disable-network-config.cfg"
+    #    dest: "/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg"
+    #    owner: root
+    #    group: root
+    #    mode: u=rw,g=r,o=r
+    #
+    # Часть2 - Для Клиентов Ubuntu РОЛЬ - новый файл конфигурации etc-netplan-50-cloud-init-yaml
+    #- name: Меняем новый файл конфигурации etc-netplan-50-cloud-init-yaml для работы через свой DNS server
+    #  copy:
+    #    src: "50-cloud-init.yaml"
+    #    dest: "/etc/netplan/50-cloud-init.yaml"
+    #    owner: root
+    #    group: root
+    #    mode: u=rw,g=r,o=r
+    #
+    # Часть3 - Для Клиентов Ubuntu РОЛЬ - применение изменения конфигурации в Netplan
+    #- name: Применение изменения конфигурации в Netplan
+    #  command: netplan apply
+
+
+    - name: Проверка, что Bind9 установлен и перезагружен 
+      service:
+        name: bind9
+        state: restarted
+        enabled: true
+  become: true

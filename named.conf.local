@@ -1,0 +1,20 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+//My path /etc/bind/myzones/158.160.17.252.sslip.io
+
+zone "andrey-project" {
+type master;
+file "/etc/bind/myzones/andrey-project/andrey-project.db";
+};
+
+zone "0.129.10.in-addr.arpa"
+{
+type master;
+file "/etc/bind/myzones/andrey-project/reverse.db";
+};
+

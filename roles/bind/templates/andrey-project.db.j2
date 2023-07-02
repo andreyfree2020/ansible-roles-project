@@ -1,0 +1,20 @@
+$TTL 30m
+@ IN SOA ns1.andrey-project. admin.andrey-project. (
+1 ; serial
+5h ; renew period
+5m ; retry
+1w ; expire
+30m ); denial cache;
+@ IN NS ns1.andrey-project.
+@ IN NS ns2.andrey-project.
+
+andrey-project. IN MX 10 mail.andrey-project.
+andrey-project. IN A 10.129.0.10
+ns1 IN A 10.129.0.10
+ns2 IN A 10.129.0.10
+www IN CNAME andrey-project.
+mail IN A 10.129.0.10
+postgres IN A 10.129.0.30
+elk IN A 10.129.0.23
+main-server IN A 10.129.0.10
+

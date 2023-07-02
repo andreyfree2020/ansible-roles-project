@@ -29,6 +29,12 @@
     - role: postgresql
       tags: postgresql
 
+- name: Установка PostgreSQL-12 на Сервер с CentOS
+  hosts: main-server-ubuntu
+  roles:
+    - role: bind
+      tags: bind
+
 # - name: Deploy zabbix-agent Ubuntu-servers
 #  hosts: ubuntu
 #  roles:
