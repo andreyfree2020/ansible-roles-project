@@ -1,0 +1,50 @@
+---
+- name: Установка PostgreSQL-12
+  block:
+    - name: Отключение Selinux CentOS
+      selinux:
+        state: disabled
+
+    - name: Установка пакетов wget unzip на CentOS
+      yum:
+        name:
+          - wget
+          - unzip
+        update_cache: true
+    
+    - name: Установка Postgresql repository CentOS
+      yum:
+        name: "{{ repo_url_postgres_centos }}"
+        state: present
+        disable_gpg_check: true
+        update_cache: true
+
+    - name: Установка PostgreSQL-12 на CentOS
+      yum:
+        name:
+          - postgresql12-server
+        update_cache: true
+
+    - name: Инициализация - создание кластера баз данных PostgreSQL-12
+      command: /usr/pgsql-12/bin/postgresql-12-setup initdb
+
+    
+    - name: Применение нового конфигурационного файла postgresql-conf PostgreSQL-12
+      template:
+        src: "postgresql.conf.j2"
+        dest: "/var/lib/pgsql/12/data/postgresql.conf"
+        mode: 0600
+    
+    - name: Применение нового конфигурационного файла pg_hba-conf PostgreSQL-12
+      template:
+        src: "pg_hba.conf.j2"
+        dest: "/var/lib/pgsql/12/data/pg_hba.conf"
+        mode: 0600
+    
+    - name: Проверка, что PostgreSQL-12 установлен и перезагружен 
+      service:
+        name: postgresql-12
+        state: restarted
+        enabled: true
+  when: inventory_hostname in groups['centos']
+  become: true

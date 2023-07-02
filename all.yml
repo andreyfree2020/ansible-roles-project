@@ -2,9 +2,10 @@
 # ansible-playbook -i inventory all.yml
 # ansible-playbook -i inventory all.yml --tags "nginx" -K
 # ansible-playbook -i inventory all.yml --tags "apache" -K
+# ansible-playbook -i inventory all.yml --tags "postgresql" -K
 # ansible-playbook -i inventory all.yml --tags "zabbix-agent" -K
 
-- name: Установка Zabbix agent на Сервер Ubuntu и CentOS
+- name: Установка Zabbix agent на Сервера Ubuntu и CentOS
   hosts: all
   roles:
     - role: zabbix-agent
@@ -21,6 +22,12 @@
   roles:
     - role: apache
       tags: apache
+
+- name: Установка PostgreSQL-12 на Сервер с CentOS
+  hosts: centos
+  roles:
+    - role: postgresql
+      tags: postgresql
 
 # - name: Deploy zabbix-agent Ubuntu-servers
 #  hosts: ubuntu
