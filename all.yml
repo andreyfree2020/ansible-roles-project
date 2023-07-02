@@ -1,0 +1,35 @@
+---
+# ansible-playbook -i inventory all.yml
+# ansible-playbook -i inventory all.yml --tags "nginx" -K
+# ansible-playbook -i inventory all.yml --tags "apache" -K
+# ansible-playbook -i inventory all.yml --tags "zabbix-agent" -K
+
+- name: Установка Zabbix agent на Сервер Ubuntu и CentOS
+  hosts: all
+  roles:
+    - role: zabbix-agent
+      tags: zabbix-agent
+
+- name: Установка Nginx на Сервер с Ubuntu
+  hosts: ubuntu
+  roles:
+    - role: nginx
+      tags: nginx
+
+- name: Установка Apache2 на Сервер с Ubuntu
+  hosts: ubuntu
+  roles:
+    - role: apache
+      tags: apache
+
+# - name: Deploy zabbix-agent Ubuntu-servers
+#  hosts: ubuntu
+#  roles:
+#    - role: deploy
+#      tags: deploy-ubuntu
+    
+# - name: Deploy zabbix-agent CentOS-server
+#  hosts: centos
+#  roles:
+#   - role: deploy
+#     tags: deploy-centos

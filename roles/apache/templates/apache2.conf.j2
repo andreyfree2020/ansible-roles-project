@@ -1,0 +1,18 @@
+Alias /phpinfo /var/www/html
+#Alias /mail /usr/share/roundcube
+
+<VirtualHost *:8080>
+  ServerName {{ my_site_name }}
+  ServerAlias 158.160.17.252.sslip.io mail.158.160.17.252.sslip.io
+  ServerAdmin admin@localhost
+  DocumentRoot /var/www/html
+  ErrorLog ${APACHE_LOG_DIR}/{{ my_site_name }}_error.log
+  CustomLog ${APACHE_LOG_DIR}/{{ my_site_name }}_access.log combined
+   <Directory /var/www/html>
+       Options FollowSymLinks
+       AllowOverride All
+       DirectoryIndex index.php
+       Order allow,deny
+       Allow from all
+   </Directory>
+</VirtualHost>

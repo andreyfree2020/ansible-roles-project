@@ -1,0 +1,122 @@
+---
+- name: Установка Apache2
+  block:
+    - name: Остановка сервиса Nginx на Ubuntu
+      service:
+        name: nginx
+        state: stopped
+
+
+    - name: Установка пакетов Apache2 и PHP на Ubuntu
+      apt:
+        name:
+          - apache2
+          - php
+          - libapache2-mod-php
+          - php-mysql
+        update_cache: true
+    
+    #- name: Включаем модуль rewrite Apache2 на Ubuntu
+    #  command: a2enmod rewrite.
+    
+    #- name: Включаем модуль ssl Apache2 на Ubuntu
+    #  command: a2enmod ssl
+
+    - name: Убираем link на конфиг 000-default в etc-apache2-sites-enabled - Apache2 на Ubuntu
+      file: 
+        path: "/etc/apache2/sites-enabled/000-default.conf"
+        state: absent
+    
+    - name: Убираем 000-default конфиг в etc-apache2-sites-available - Apache2 на Ubuntu
+      file: 
+        path: "/etc/nginx/sites-available/000-default.conf"
+        state: absent
+    
+    - name: Убираем index файл в var-www-html по умолчанию - Apache2 на Ubuntu
+      file: 
+        path: "/var/www/html/index.html"
+        state: absent
+
+    - name: Создание Директории picture для КАРТИНКИ ЛОГО для Nginx для Ubuntu
+      file:
+        path: "/var/www/picture"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Кладем файл index в var-www-picture Nginx для Ubuntu
+      template:
+        src: "nginx.index.html.j2"
+        dest: "/var/www/picture/index.html"
+        owner: www-data
+        group: www-data
+        mode: u=rw,g=r,o=r
+
+    - name: Кладем файл logo в var-www-picture Nginx для Ubuntu
+      copy:
+        src: "logo.gif"
+        dest: "/var/www/picture/logo.gif"
+        owner: www-data
+        group: www-data
+        mode: u=rw,g=r,o=r
+
+    - name: Кладем файл с паролями для Kibana в etc-nginx Nginx для Ubuntu
+      template:
+        src: "kibana.htpasswd.j2"
+        dest: "/etc/nginx/.kibana_htpasswd"
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла ports Apache2 для Ubuntu
+      template:
+        src: "apache2.ports.conf.j2"
+        dest: "/etc/apache2/ports.conf"
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового основного конфигурационного файла Apache2 для Ubuntu
+      template:
+        src: "apache2.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ my_site_name }}.conf"
+        mode: u=rw,g=r,o=r
+    
+    - name: Применение нового основного конфигурационного файла Nginx для Ubuntu
+      template:
+        src: "nginx.conf.j2"
+        dest: "/etc/nginx/sites-available/{{ my_site_name }}.conf"
+        mode: u=rw,g=r,o=r
+
+    - name: Создание симлинк на новый конфигурационный файл Apache2 для Ubuntu
+      file:
+        src: "/etc/apache2/sites-available/{{ my_site_name }}.conf"
+        dest: "/etc/apache2/sites-enabled/{{ my_site_name }}.conf"
+        owner: root
+        group: root
+        state: link
+    
+    - name: Применение нового index-html файла Apache2 для Ubuntu
+      template:
+        src: "apache2.index.php.j2"
+        dest: "/var/www/html/index.php"
+        mode: u=rw,g=r,o=r
+
+    - name: Изменение ВЛАДЕЛЬЦА var-www-html на www-data для Ubuntu
+      file:
+        path: "var/www/html"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: u=rw,g=r,o=r
+        recurse: true
+
+    - name: Проверка, что Apache2 установлен и перезагружен 
+      service:
+        name: apache2
+        state: restarted
+        enabled: true
+    
+    - name: Запуск Nginx 
+      service:
+        name: nginx
+        state: started
+        enabled: true
+  become: true

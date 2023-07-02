@@ -1,0 +1,51 @@
+---
+- name: Установка Zabbix репозитория для CentOS
+  block:
+    - name: Отключение Selinux CentOS
+      selinux:
+        state: disabled
+    - name: Установка Zabbix repository CentOS
+      yum:
+        name: "{{ repo_url_centos }}"
+        state: present
+        disable_gpg_check: true
+        update_cache: true
+  when: inventory_hostname in groups['centos']
+  become: true
+
+- name: Установка Zabbix-agent
+  block:
+    - name: Установка пакетa zabbix-agent на Ubuntu
+      apt:
+        name:
+          - zabbix-agent
+        update_cache: true
+      when: inventory_hostname in groups['ubuntu']
+    
+    - name: Установка пакетa zabbix-agent на Centos
+      yum:
+        name:
+          - zabbix-agent
+        update_cache: true
+      when: inventory_hostname in groups['centos']
+    
+    - name: Применение конфигурационного файла для Ubuntu
+      template:
+        src: "ubuntu_zabbix_agentd.conf.j2"
+        dest: "/etc/zabbix/zabbix_agentd.conf"
+        mode: 0644
+      when: inventory_hostname in groups['ubuntu']
+    
+    - name: Применение конфигурационного файла для CentOS
+      template:
+        src: "centos_zabbix_agentd.conf.j2"
+        dest: "/etc/zabbix/zabbix_agentd.conf"
+        mode: 0644
+      when: inventory_hostname in groups['centos']
+    
+    - name: Проверка, что Zabbix-agent установлен и перезагружен 
+      service:
+        name: zabbix-agent
+        state: restarted
+        enabled: true
+  become: true

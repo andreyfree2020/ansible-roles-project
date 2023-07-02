@@ -1,0 +1,50 @@
+---
+- name: Установка Nginx
+  block:
+    - name: Установка пакетa Nginx на Ubuntu
+      apt:
+        name:
+          - nginx
+        update_cache: true
+    
+    - name: Убираем link на конфиг default в etc-nginx-sites-enabled - Nginx на Ubuntu
+      file: 
+        path: "/etc/nginx/sites-enabled/default"
+        state: absent
+    
+    - name: Убираем default конфиг в etc-nginx-sites-available - Nginx на Ubuntu
+      file: 
+        path: "/etc/nginx/sites-available/default"
+        state: absent
+    
+    - name: Убираем index файл в var-www-html по умолчанию - Nginx на Ubuntu
+      file: 
+        path: "/var/www/html/index.nginx-debian.html"
+        state: absent
+
+    - name: Применение нового конфигурационного файла Nginx для Ubuntu
+      template:
+        src: "nginx.conf.j2"
+        dest: "/etc/nginx/sites-available/{{ my_site_name }}.conf"
+        mode: u=rw,g=r,o=r
+    
+    - name: Создание симлинк на новый конфигурационный файл Nginx для Ubuntu
+      file:
+        src: "/etc/nginx/sites-available/{{ my_site_name }}.conf"
+        dest: "/etc/nginx/sites-enabled/{{ my_site_name }}.conf"
+        owner: root
+        group: root
+        state: link
+    
+    - name: Применение нового index-html файла Nginx для Ubuntu
+      template:
+        src: "nginx.index.html.j2"
+        dest: "/var/www/html/index.html"
+        mode: u=rw,g=r,o=r
+
+    - name: Проверка, что Nginx установлен и перезагружен 
+      service:
+        name: nginx
+        state: restarted
+        enabled: true
+  become: true
