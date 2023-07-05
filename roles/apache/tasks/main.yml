@@ -16,11 +16,11 @@
           - php-mysql
         update_cache: true
     
-    #- name: Включаем модуль rewrite Apache2 на Ubuntu
-    #  command: a2enmod rewrite.
-    
-    #- name: Включаем модуль ssl Apache2 на Ubuntu
-    #  command: a2enmod ssl
+    - name: Включаем модуль rewrite Apache2 на Ubuntu
+      command: a2enmod rewrite
+
+    - name: Включаем модуль ssl Apache2 на Ubuntu
+      command: a2enmod ssl
 
     - name: Убираем link на конфиг 000-default в etc-apache2-sites-enabled - Apache2 на Ubuntu
       file: 

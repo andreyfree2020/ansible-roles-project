@@ -1,0 +1,33 @@
+---
+- name: Установка filebeat
+  block:
+    - name: Установка пакетa filebeat на Ubuntu
+      apt:
+        deb: "{{ deb_url_filebeat }}"
+        
+    - name: Подключение модуля nginx filebeat для Ubuntu
+      command: filebeat modules enable nginx
+    
+    - name: Подключение модуля mysql filebeat для Ubuntu
+      command: filebeat modules enable mysql
+    
+    - name: Подключение модуля elasticsearch filebeat для Ubuntu
+      command: filebeat modules enable elasticsearch
+    
+    - name: filebeat setup
+      command: filebeat setup
+    
+    - name: Применение нового конфигурационного файла filebeat для Ubuntu
+      template:
+        src: "filebeat.yml.j2"
+        dest: "/etc/filebeat/filebeat.yml"
+        owner: 
+        group: 
+        mode: 
+    
+    - name: Перезагружаем и делаем автозапуск filebeat
+      service:
+        name: filebeat
+        state: restarted
+        enabled: true
+  become: true

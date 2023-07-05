@@ -29,11 +29,23 @@
     - role: postgresql
       tags: postgresql
 
-- name: Установка PostgreSQL-12 на Сервер с CentOS
+- name: Установка Bind9 на Сервер с Ubuntu
   hosts: main-server-ubuntu
   roles:
     - role: bind
       tags: bind
+
+- name: Установка Агента filebeat на Сервер с Ubuntu
+  hosts: main-server-ubuntu
+  roles:
+    - role: filebeat
+      tags: filebeat
+
+- name: Установка Elasticsearch and Kibana на Сервер с Ubuntu
+  hosts: ubuntu
+  roles:
+    - role: elk-kibana
+      tags: elk-kibana
 
 # - name: Deploy zabbix-agent Ubuntu-servers
 #  hosts: ubuntu

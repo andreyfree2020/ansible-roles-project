@@ -1,0 +1,56 @@
+---
+- name: Установка Elasticsearch и Kibana на Ubuntu
+  block:
+    - name: Установка пакетa Elasticsearch на Ubuntu
+      apt:
+        deb: "{{ deb_url_elasticsearch }}"
+        
+    - name: Установка пакетa Kibana на Ubuntu
+      apt:
+        deb: "{{ deb_url_kibana }}"
+    
+    - name: Подключение модуля nginx filebeat для Ubuntu
+      command: filebeat modules enable nginx
+    
+    - name: Подключение модуля mysql filebeat для Ubuntu
+      command: filebeat modules enable mysql
+    
+    - name: Подключение модуля elasticsearch filebeat для Ubuntu
+      command: filebeat modules enable elasticsearch
+    
+    - name: filebeat setup
+      command: filebeat setup
+    
+    - name: Применение нового конфигурационного файла elasticsearch для Ubuntu
+      template:
+        src: "elasticsearch.yml.j2"
+        dest: "/etc/elasticsearch/elasticsearch.yml"
+        owner: 
+        group: 
+        mode: 
+    
+    - name: Применение нового конфигурационного файла kibana для Ubuntu
+      template:
+        src: "kibana.yml.j2"
+        dest: "/etc/kibana/kibana.yml"
+        owner: 
+        group: 
+        mode: 
+   
+    - name: Перечитываем конфигурацию daemon-reload
+      service:
+        name: daemon-reload
+        state: restarted
+    
+    - name: Перезагружаем и делаем автозапуск Elasticsearch
+      service:
+        name: elasticsearch
+        state: restarted
+        enabled: true
+    
+    - name: Перезагружаем и делаем автозапуск Kibana
+      service:
+        name: kibana
+        state: restarted
+        enabled: true
+  become: true

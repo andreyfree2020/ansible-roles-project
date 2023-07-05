@@ -1,8 +1,14 @@
 ---
-zabbix_server: "10.129.0.10"
+zabbix_server: "10.11.10.1"
 
 repo_url_centos: https://repo.zabbix.com/zabbix/6.4/rhel/7/x86_64/zabbix-release-6.4-1.el7.noarch.rpm
 
 repo_url_postgres_centos: https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+
+deb_url_filebeat: https://www.techplanet.pro/d/filebeat-7.17.1-amd64.deb
+
+deb_url_elasticsearch: https://www.techplanet.pro/d/elasticsearch-7.17.1-amd64.deb
+
+deb_url_kibana: https://www.techplanet.pro/d/kibana-7.17.1-amd64.deb
 
 my_site_name: www.158.160.17.252.sslip.io
