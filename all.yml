@@ -47,6 +47,12 @@
     - role: elk-kibana
       tags: elk-kibana
 
+- name: Установка Почты Postfix Dovecot Spamassassin на Сервер с Ubuntu
+  hosts: main-server-ubuntu
+  roles:
+    - role: mail
+      tags: mail
+
 # - name: Deploy zabbix-agent Ubuntu-servers
 #  hosts: ubuntu
 #  roles:

@@ -12,3 +12,5 @@ deb_url_elasticsearch: https://www.techplanet.pro/d/elasticsearch-7.17.1-amd64.d
 deb_url_kibana: https://www.techplanet.pro/d/kibana-7.17.1-amd64.deb
 
 my_site_name: www.158.160.17.252.sslip.io
+
+virtual_mailbox_domains: 158.160.17.252.sslip.io

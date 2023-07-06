@@ -1,0 +1,10 @@
+galaxy_info:
+  role_name: mail
+  description: Установка и настройка на сервере с Ubuntu Postfix и Dovecot
+  author: Andrey Novikov
+  license: MIT
+  min_ansible_version: 2.9
+  platforms: 
+    - name: Ubuntu
+      versions:
+        - all

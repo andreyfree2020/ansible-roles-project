@@ -25,17 +25,17 @@
       template:
         src: "elasticsearch.yml.j2"
         dest: "/etc/elasticsearch/elasticsearch.yml"
-        owner: 
-        group: 
-        mode: 
+        owner: root
+        group: elasticsearch
+        mode: 0660
     
     - name: Применение нового конфигурационного файла kibana для Ubuntu
       template:
         src: "kibana.yml.j2"
         dest: "/etc/kibana/kibana.yml"
-        owner: 
-        group: 
-        mode: 
+        owner: root
+        group: kibana
+        mode: 0660
    
     - name: Перечитываем конфигурацию daemon-reload
       service:

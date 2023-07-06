@@ -1,0 +1,254 @@
+---
+- name: Установка Postfix и Dovecot на Ubuntu
+  block:
+    - name: Установка пакета Postfix на Ubuntu
+      apt:
+        name:
+          - postfix
+        update_cache: true
+    
+    - name: Применение нового конфигурационного файла main-cf Postfix для Ubuntu
+      template:
+        src: "main.cf.j2"
+        dest: "/etc/postfix/main.cf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+    
+    - name: Применение нового файла virtual_mailbox_domains Postfix для Ubuntu
+      template:
+        src: "virtual_mailbox_domains.j2"
+        dest: "/etc/postfix/virtual_mailbox_domains"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+    
+    - name:  Запуск postmap for virtual_mailbox_domains для Ubuntu
+      command: postmap /etc/postfix/virtual_mailbox_domains
+    
+    - name: Применение нового конфигурационного файла master-cf Postfix для Ubuntu
+      template:
+        src: "master.cf.j2"
+        dest: "/etc/postfix/master.cf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+    
+    - name: Установка пакетов Dovecot на Ubuntu
+      apt:
+        name:
+          - dovecot-core
+          - dovecot-imapd
+          - dovecot-pop3d
+          - dovecot-lmtpd
+
+    - name: "Создание Директории var-mail-vhosts-{{ virtual_mailbox_domains }} для Dovecot для Ubuntu"
+      file:
+        path: "/var/mail/vhosts/{{ virtual_mailbox_domains }}"
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Создание Группы vmail для Dovecot для Ubuntu
+      group:
+        name: vmail
+        gid: 5000
+        state: present
+    
+    - name: Создание Пользователя vmail для Dovecot для Ubuntu
+      user:
+        name: vmail
+        uid: 5000
+        group: vmail
+        home: "/var/mail/vhosts"
+        comment: "Virtual mail user"
+        system: true
+        state: present
+    
+    - name: Изменение ВЛАДЕЛЬЦА var-mail-vhosts на vmail для Ubuntu
+      file:
+        path: "/var/mail/vhosts"
+        state: directory
+        owner: vmail
+        group: vmail
+        mode: u=rwx,g=rx,o=rx
+        recurse: true
+    
+    #- name: Set "setuid" bit myzones which tells the OS to execute that program with the userid of its owner VMAIL Ubuntu
+    #  file:
+    #    path: "/var/mail/vhosts"
+    #    recurse: yes
+    #    mode: g+s
+    
+    - name: Применение нового конфигурационного файла 10-auth Dovecot для Ubuntu
+      template:
+        src: "10-auth.conf.j2"
+        dest: "/etc/dovecot/conf.d/10-auth.conf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла 10-master Dovecot для Ubuntu
+      template:
+        src: "10-master.conf.j2"
+        dest: "/etc/dovecot/conf.d/10-master.conf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла auth-passwdfile-conf-ext Dovecot для Ubuntu
+      template:
+        src: "auth-passwdfile.conf.ext.j2"
+        dest: "/etc/dovecot/conf.d/auth-passwdfile.conf.ext"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла dovecot-users Dovecot для Ubuntu
+      template:
+        src: "dovecot-users.j2"
+        dest: "/etc/dovecot/dovecot-users"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла 10-mail-conf Dovecot для Ubuntu
+      template:
+        src: "10-mail.conf.j2"
+        dest: "/etc/dovecot/conf.d/10-mail.conf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+
+    - name: Применение нового конфигурационного файла 10-ssl-conf Dovecot для Ubuntu
+      template:
+        src: "10-ssl.conf.j2"
+        dest: "/etc/dovecot/conf.d/10-ssl.conf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+    
+    - name: Установка пакетов Mysql-server and Roundcube for Postfix-Dovecot на Ubuntu
+      apt:
+        name:
+          - mysql-server
+          - roundcube
+    #-----------------------------------------------------------------------------
+    #- name: Case insensitive password string match
+    #  expect:
+    #    command: apt install -y roundcube
+    #    responses: >
+    #       [
+    #       "#Confige database for roundcube with dbconfig-common":"Yes",
+    #       "#MySQL application password for roundcube":"PASSWORD",
+    #       "# Password confirmation:":"PASSWORD"
+    #       ]
+    #      #(?i)password: "MySekretPa$$word"
+    #-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    # Установка Антивируса Clamav
+    #-----------------------------------------------------------------------------
+    #- name: Установка пакетов Clamav на Ubuntu
+    #  apt:
+    #    name:
+    #      - clamav-daemon
+    #      - clamav
+    #      - clamsmtp
+    #
+    #- name: Изменение ВЛАДЕЛЬЦА var-spool-clamsmtp для Ubuntu
+    #  file:
+    #    path: "/var/spool/clamsmtp"
+    #    state: directory
+    #    owner: clamsmtp
+    #    group: clamsmtp
+    #    recurse: true
+    #
+    #- name: Изменение ВЛАДЕЛЬЦА var-run-clamsmtp для Ubuntu
+    #  file:
+    #    path: "/var/run/clamsmtp"
+    #    state: directory
+    #    owner: clamsmtp
+    #    group: clamsmtp
+    #    recurse: true
+    #-----------------------------------------------------------------------------
+    
+    #-----------------------------------------------------------------------------
+    # Установка Антиспама Spamassassin
+    #-----------------------------------------------------------------------------
+    - name: Установка пакетов Spamassassin на Ubuntu
+      apt:
+        name:
+          - spamassassin
+          - spamc
+          
+    - name: "Создание Директории var-lib-spamassassin для Spamassassin для Ubuntu"
+      file:
+        path: "/var/lib/spamassassin"
+        state: directory
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Создание Группы spamd для Spamassassin для Ubuntu
+      group:
+        name: spamd
+        gid: 5001
+        state: present
+    
+    - name: Создание Пользователя spamd для Spamassassin для Ubuntu
+      user:
+        name: spamd
+        uid: 5001
+        group: spamd
+        home: "/var/lib/spamassassin"
+        comment: "Spamassassin user"
+        #system: true
+        shell: /sbin/nologin
+        state: present
+
+    - name: Изменение ВЛАДЕЛЬЦА var-lib-spamassassin на spamd для Ubuntu
+      file:
+        path: "/var/lib/spamassassin"
+        state: directory
+        owner: spamd
+        group: spamd
+        mode: u=rwx,g=rx,o=rx
+        recurse: true
+    
+    - name: Применение нового конфигурационного файла etc-default-spamassassin Spamassassin для Ubuntu
+      template:
+        src: "spamassassin.j2"
+        dest: "/etc/default/spamassassin"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+    
+    - name: Применение нового конфигурационного файла etc-spamassassin-local-cf Spamassassin для Ubuntu
+      template:
+        src: "local.cf.j2"
+        dest: "/etc/spamassassin/local.cf"
+        owner: root
+        group: root
+        mode: u=rw,g=r,o=r
+    
+    #-----------------------------------------------------------------------------
+    - name: Update Spamassassin
+      command: sa-update
+    #-----------------------------------------------------------------------------
+
+    - name: Перезагружаем и делаем автозапуск Spamassassin
+      service:
+        name: spamassassin
+        state: restarted
+        enabled: true
+    #-----------------------------------------------------------------------------
+        
+    - name: Перезагружаем и делаем автозапуск Postfix
+      service:
+        name: postfix
+        state: restarted
+        enabled: true
+    
+    - name: Перезагружаем и делаем автозапуск Dovecot
+      service:
+        name: dovecot
+        state: restarted
+        enabled: true
+  become: true
